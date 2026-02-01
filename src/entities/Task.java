@@ -16,7 +16,16 @@ public class Task {
         this.deadline = deadline;
         this.projectId = projectId;
     }
+
+    public int getId() {
+        return id;
+    }
+
     public String getTitle() { return title; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public int getProjectId() {
+        return projectId;
+    }
 }

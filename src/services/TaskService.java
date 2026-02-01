@@ -5,8 +5,11 @@ import repositories.TaskRepository;
 import exceptions.DeadlineInPastException;
 import exceptions.TaskWithoutProjectException;
 import exceptions.InvalidStatusTransitionException;
+import services.TaskFactory;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TaskService {
 
@@ -45,5 +48,17 @@ public class TaskService {
                     "Task: " + task.getTitle() + ", status: " + task.getStatus()
             );
         }
+    }
+
+    public List<Task> findTasksByStatus(String status) {
+        return taskRepository.getAllTasks()
+                .stream()
+                .filter(task -> task.getStatus().equals(status))
+                .collect(Collectors.toList());
+    }
+
+    public void createUrgentTask(int id, String title, int projectId) {
+        Task task = TaskFactory.createTask("URGENT", id, title, projectId);
+        taskRepository.addTask(task);
     }
 }

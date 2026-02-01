@@ -3,59 +3,75 @@ import repositories.*;
 import services.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        // Repositories
         UserRepository userRepository = new UserRepository();
         ProjectRepository projectRepository = new ProjectRepository();
         TaskRepository taskRepository = new TaskRepository();
         CommentRepository commentRepository = new CommentRepository();
 
-        // Services
         UserService userService = new UserService(userRepository);
         ProjectService projectService = new ProjectService(projectRepository);
         TaskService taskService = new TaskService(taskRepository);
         CommentService commentService = new CommentService(commentRepository);
 
-        // Create User
-        User user = new User(1, " Baizhana", "baizhana@mail.com");
+        User user = new User(1, "Baizhana", "baizhana@mail.com");
         userService.addUser(user);
 
-        // Create Project
         Project project = new Project(1, "Project management tool", user.getId());
         projectService.createProject(project);
 
-        // Create Task
         taskService.createTask(
                 1,
-                "Finish Milestone 1",
+                "Finish Milestone 2",
                 "TODO",
                 LocalDate.now().plusDays(2),
                 project.getId()
         );
 
-        // Change Task Status
+        taskService.createUrgentTask(
+                2,
+                "Fix urgent bug",
+                project.getId()
+        );
+
+        Task taskFromBuilder = new TaskBuilder()
+                .setId(3)
+                .setTitle("Prepare defense")
+                .setStatus("NEW")
+                .setDeadline(LocalDate.now().plusDays(5))
+                .setProjectId(project.getId())
+                .build();
+
+        taskRepository.add(taskFromBuilder);
+
         Task task = taskRepository.getAllTasks().get(0);
         taskService.changeStatus(task, "IN_PROGRESS");
 
-        // Add Comment
-        Comment comment = new Comment(1, "Project structure is ready", 1);
+        Comment comment = new Comment(1, "Project structure is ready", task.getId());
         commentService.addComment(comment);
 
-        // OUTPUT
-        System.out.println("USERS");
+        System.out.println("\nTASKS WITH STATUS 'NEW':");
+        List<Task> newTasks = taskService.findTasksByStatus("NEW");
+        newTasks.forEach(t -> System.out.println("- " + t.getTitle()));
+
+        System.out.println("\nUSERS");
         userService.showUsers();
 
-        System.out.println("\n PROJECTS");
+        System.out.println("\nPROJECTS");
         projectService.showProjects();
 
-        System.out.println("\n TASKS");
+        System.out.println("\nALL TASKS");
         taskService.showTasks();
 
-        System.out.println("\n COMMENTS");
+        System.out.println("\nCOMMENTS");
         System.out.println("Total comments: " + commentRepository.getAllComments().size());
+
+        ConfigurationManager config = ConfigurationManager.getInstance();
+        System.out.println("\nCONFIGURATION MANAGER INSTANCE: " + config);
     }
 }
